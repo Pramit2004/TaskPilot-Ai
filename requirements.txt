@@ -1,0 +1,14 @@
+fastapi
+langchain
+scikit-learn
+pandas
+numpy
+matplotlib
+seaborn
+joblib
+reportlab==4.4.3
+python-pptx
+Jinja2
+typer
+python-dotenv 
+sqlalchemy

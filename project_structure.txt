@@ -1,0 +1,34 @@
+taskpilot_ai/
+│
+├── agents/
+│   ├── __init__.py
+│   ├── parser_agent.py
+│   ├── inspection_agent.py
+│   ├── cleaner_agent.py
+│   ├── eda_agent.py
+│   ├── model_trainer_agent.py
+│   ├── reflective_agent.py
+│   ├── insight_agent.py
+│   └── report_agent.py
+│
+├── cli/
+│   ├── __init__.py
+│   └── main.py
+│
+├── frontend/         # (optional, for web UI)
+│
+├── data/
+│
+├── reports/
+│
+├── config/
+│   └── __init__.py
+│
+├── utils/
+│   ├── __init__.py
+│   └── helpers.py
+│
+├── .env.example
+├── requirements.txt
+├── README.md
+├── test_env.py 

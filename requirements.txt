@@ -12,3 +12,4 @@ Jinja2
 typer
 python-dotenv 
 sqlalchemy
+uvicorn

@@ -6,21 +6,25 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# PostgreSQL configuration for Render cloud
-POSTGRES_USER = os.getenv('POSTGRES_USER', 'root')
-POSTGRES_PASSWORD = os.getenv('POSTGRES_PASSWORD', 'plhZeHp84YD3HUvzjUgiM51LgznixfsN')
-POSTGRES_HOST = os.getenv('POSTGRES_HOST', 'dpg-d2457ljuibrs73a8b730-a.render.com')
-POSTGRES_PORT = os.getenv('POSTGRES_PORT', '5432')
-POSTGRES_DB = os.getenv('POSTGRES_DB', 'taskpilot_ai')
+# Use the external DATABASE_URL directly (recommended for Render)
+DATABASE_URL = os.getenv('DATABASE_URL', 'postgresql://root:plhZeHp84YD3HUvzjUgiM51LgznixfsN@dpg-d2457ljuibrs73a8b730-a.oregon-postgres.render.com/taskpilot_ai')
 
-# Alternative: Use DATABASE_URL directly (recommended for Render)
-DATABASE_URL = os.getenv('DATABASE_URL') or f"postgresql+psycopg2://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}"
-
-# Handle Render's internal DATABASE_URL format
-if DATABASE_URL and DATABASE_URL.startswith('postgres://'):
+# Convert postgres:// to postgresql+psycopg2:// if needed
+if DATABASE_URL.startswith('postgres://'):
     DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql+psycopg2://', 1)
+elif DATABASE_URL.startswith('postgresql://') and 'psycopg2' not in DATABASE_URL:
+    DATABASE_URL = DATABASE_URL.replace('postgresql://', 'postgresql+psycopg2://', 1)
 
-engine = create_engine(DATABASE_URL, echo=False)
+# Add connection pool settings for better stability
+engine = create_engine(
+    DATABASE_URL, 
+    echo=False,
+    pool_pre_ping=True,  # Verify connections before use
+    pool_recycle=300,    # Recycle connections every 5 minutes
+    pool_timeout=20,     # Wait up to 20 seconds for connection
+    max_overflow=0       # Don't allow overflow connections
+)
+
 SessionLocal = sessionmaker(bind=engine)
 Base = declarative_base()
 
@@ -63,39 +67,75 @@ class RetryLog(Base):
     user_query = relationship('UserQuery', back_populates='retry_logs')
 
 def init_db():
-    Base.metadata.create_all(bind=engine)
+    """Initialize database tables"""
+    try:
+        Base.metadata.create_all(bind=engine)
+        print("Database tables created successfully!")
+    except Exception as e:
+        print(f"Error creating database tables: {e}")
+        raise
 
 def log_query(query: str, dataset_name: str, dataset_path: str) -> int:
-    with SessionLocal() as session:
-        dataset = session.query(Dataset).filter_by(name=dataset_name).first()
-        if not dataset:
-            dataset = Dataset(name=dataset_name, path=dataset_path)
-            session.add(dataset)
+    """Log a user query and return the query ID"""
+    try:
+        with SessionLocal() as session:
+            dataset = session.query(Dataset).filter_by(name=dataset_name).first()
+            if not dataset:
+                dataset = Dataset(name=dataset_name, path=dataset_path)
+                session.add(dataset)
+                session.commit()
+            user_query = UserQuery(query=query, dataset=dataset)
+            session.add(user_query)
             session.commit()
-        user_query = UserQuery(query=query, dataset=dataset)
-        session.add(user_query)
-        session.commit()
-        return user_query.id
+            return user_query.id
+    except Exception as e:
+        print(f"Error logging query: {e}")
+        raise
 
 def log_model_result(user_query_id: int, model_name: str, metrics: dict):
-    with SessionLocal() as session:
-        result = ModelResult(
-            user_query_id=user_query_id,
-            model_name=model_name,
-            accuracy=metrics.get('accuracy'),
-            f1=metrics.get('f1'),
-            rmse=metrics.get('rmse'),
-            metrics=str(metrics),
-        )
-        session.add(result)
-        session.commit()
+    """Log model results for a query"""
+    try:
+        with SessionLocal() as session:
+            result = ModelResult(
+                user_query_id=user_query_id,
+                model_name=model_name,
+                accuracy=metrics.get('accuracy'),
+                f1=metrics.get('f1'),
+                rmse=metrics.get('rmse'),
+                metrics=str(metrics),
+            )
+            session.add(result)
+            session.commit()
+    except Exception as e:
+        print(f"Error logging model result: {e}")
+        raise
 
 def log_retry(user_query_id: int, action: str, result: str):
-    with SessionLocal() as session:
-        retry = RetryLog(
-            user_query_id=user_query_id,
-            action=action,
-            result=result,
-        )
-        session.add(retry)
-        session.commit()
+    """Log retry attempts"""
+    try:
+        with SessionLocal() as session:
+            retry = RetryLog(
+                user_query_id=user_query_id,
+                action=action,
+                result=result,
+            )
+            session.add(retry)
+            session.commit()
+    except Exception as e:
+        print(f"Error logging retry: {e}")
+        raise
+
+def test_connection():
+    """Test database connection"""
+    try:
+        with engine.connect() as connection:
+            result = connection.execute("SELECT 1")
+            print("✅ Database connection successful!")
+            return True
+    except Exception as e:
+        print(f"❌ Database connection failed: {e}")
+        return False
+
+# Test connection when module is imported
+if __name__ == "__main__":
+    test_connection()

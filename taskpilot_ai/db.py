@@ -6,13 +6,20 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-MYSQL_USER = os.getenv('MYSQL_USER', 'root')
-MYSQL_PASSWORD = os.getenv('MYSQL_PASSWORD', 'root')
-MYSQL_HOST = os.getenv('MYSQL_HOST', 'localhost')
-MYSQL_PORT = os.getenv('MYSQL_PORT', '3306')
-MYSQL_DB = os.getenv('MYSQL_DB', 'taskpilot_ai')
+# PostgreSQL configuration for Render cloud
+POSTGRES_USER = os.getenv('POSTGRES_USER', 'root')
+POSTGRES_PASSWORD = os.getenv('POSTGRES_PASSWORD', 'plhZeHp84YD3HUvzjUgiM51LgznixfsN')
+POSTGRES_HOST = os.getenv('POSTGRES_HOST', 'dpg-d2457ljuibrs73a8b730-a.render.com')
+POSTGRES_PORT = os.getenv('POSTGRES_PORT', '5432')
+POSTGRES_DB = os.getenv('POSTGRES_DB', 'taskpilot_ai')
 
-DATABASE_URL = f"mysql+pymysql://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DB}"
+# Alternative: Use DATABASE_URL directly (recommended for Render)
+DATABASE_URL = os.getenv('DATABASE_URL') or f"postgresql+psycopg2://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}"
+
+# Handle Render's internal DATABASE_URL format
+if DATABASE_URL and DATABASE_URL.startswith('postgres://'):
+    DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql+psycopg2://', 1)
+
 engine = create_engine(DATABASE_URL, echo=False)
 SessionLocal = sessionmaker(bind=engine)
 Base = declarative_base()

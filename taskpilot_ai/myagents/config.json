@@ -1,0 +1,26 @@
+{
+  "server": {
+    "host": "0.0.0.0",
+    "port": 8000,
+    "reload": false
+  },
+  "data": {
+    "max_file_size_mb": 100,
+    "supported_formats": [
+      ".csv",
+      ".xlsx",
+      ".xls",
+      ".json"
+    ],
+    "upload_dir": "uploads"
+  },
+  "analysis": {
+    "default_time_budget": 600,
+    "max_time_budget": 1800,
+    "enable_agents": true
+  },
+  "api": {
+    "gemini_api_key": "",
+    "enable_advanced_features": true
+  }
+}

@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TaskPilot AI - The True AI Data Scientist</title>
+    <style>
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+      }
+      .container {
+        max-width: 1000px;
+        margin: 20px auto;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        padding: 40px;
+        backdrop-filter: blur(10px);
+      }
+      .header {
+        text-align: center;
+        margin-bottom: 40px;
+      }
+      h1 {
+        color: #2a2a72;
+        font-size: 2.5em;
+        margin: 0;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+      }
+      .subtitle {
+        color: #666;
+        font-size: 1.2em;
+        margin-top: 10px;
+      }
+      .system-status {
+        background: linear-gradient(45deg, #d4edda, #c3e6cb);
+        color: #155724;
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        border-left: 5px solid #28a745;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .status-indicator {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .status-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #28a745;
+        animation: pulse 2s infinite;
+      }
+      @keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.5; }
+        100% { opacity: 1; }
+      }
+      .warning-banner {
+        background: linear-gradient(45deg, #fff3cd, #ffeaa7);
+        color: #856404;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 30px;
+        border-left: 5px solid #f39c12;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      }
+      .form-section {
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+      }
+      .form-group {
+        margin-bottom: 25px;
+      }
+      label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #2a2a72;
+      }
+      input[type="file"],
+      textarea,
+      input[type="text"],
+      input[type="password"],
+      select {
+        width: 100%;
+        padding: 12px;
+        border-radius: 8px;
+        border: 2px solid #e1e5e9;
+        font-size: 16px;
+        transition: border-color 0.3s ease;
+        box-sizing: border-box;
+      }
+      input:focus,
+      textarea:focus,
+      select:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      }
+      .file-info {
+        margin-top: 10px;
+        padding: 10px;
+        background: #f8f9fa;
+        border-radius: 5px;
+        font-size: 14px;
+        display: none;
+      }
+      .submit-btn {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        border-radius: 8px;
+        font-size: 18px;
+        font-weight: 600;
+        cursor: pointer;
+        width: 100%;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+      .submit-btn:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+      }
+      .submit-btn:disabled {
+        background: #cccccc;
+        cursor: not-allowed;
+        transform: none;
+      }
+      .status {
+        padding: 15px;
+        border-radius: 8px;
+        margin: 20px 0;
+        font-weight: 500;
+        display: none;
+      }
+      .status.info {
+        background: #d1ecf1;
+        color: #0c5460;
+        border-left: 4px solid #17a2b8;
+      }
+      .status.success {
+        background: #d4edda;
+        color: #155724;
+        border-left: 4px solid #28a745;
+      }
+      .status.error {
+        background: #f8d7da;
+        color: #721c24;
+        border-left: 4px solid #dc3545;
+      }
+      .loading-spinner {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #667eea;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-right: 10px;
+      }
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      .results-container {
+        background: white;
+        border-radius: 12px;
+        padding: 30px;
+        margin-top: 30px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      }
+      .session-info {
+        background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 25px;
+        border-left: 5px solid #28a745;
+      }
+      .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin: 25px 0;
+      }
+      .summary-card {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        text-align: center;
+        border-top: 4px solid #667eea;
+      }
+      .card-value {
+        font-size: 1.8em;
+        font-weight: bold;
+        color: #2a2a72;
+        margin-bottom: 5px;
+      }
+      .card-label {
+        color: #666;
+        font-size: 0.9em;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+      .achievements-list {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 10px;
+        margin: 20px 0;
+      }
+      .achievement-item {
+        display: flex;
+        align-items: center;
+        margin: 10px 0;
+        padding: 10px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      }
+      .download-section {
+        background: #e8f5e8;
+        padding: 20px;
+        border-radius: 10px;
+        margin-top: 25px;
+      }
+      .download-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-top: 15px;
+      }
+      .download-btn {
+        background: #28a745;
+        color: white;
+        padding: 10px 15px;
+        border-radius: 6px;
+        text-decoration: none;
+        text-align: center;
+        transition: background 0.3s ease;
+        font-weight: 500;
+        display: block;
+      }
+      .download-btn:hover {
+        background: #218838;
+        transform: translateY(-1px);
+        text-decoration: none;
+        color: white;
+      }
+      .tabs {
+        display: flex;
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 5px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+      }
+      .tab {
+        flex: 1;
+        min-width: 120px;
+        text-align: center;
+        padding: 12px;
+        background: transparent;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s ease;
+      }
+      .tab.active {
+        background: white;
+        color: #667eea;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      }
+      .tab-content {
+        display: none;
+      }
+      .tab-content.active {
+        display: block;
+      }
+      .json-viewer {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+        max-height: 400px;
+        overflow-y: auto;
+        font-family: 'Courier New', monospace;
+        font-size: 12px;
+        line-height: 1.4;
+      }
+      .production-assets {
+        background: #fff3cd;
+        padding: 20px;
+        border-radius: 10px;
+        margin: 20px 0;
+        border-left: 5px solid #ffc107;
+      }
+      .progress-container {
+        width: 100%;
+        background-color: #e0e0e0;
+        border-radius: 10px;
+        margin: 10px 0;
+        overflow: hidden;
+      }
+      .progress-bar {
+        height: 20px;
+        background: linear-gradient(90deg, #667eea, #764ba2);
+        border-radius: 10px;
+        text-align: center;
+        line-height: 20px;
+        color: white;
+        font-size: 12px;
+        font-weight: bold;
+        transition: width 0.3s ease;
+        width: 0%;
+      }
+      .agent-status {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 10px;
+        margin: 20px 0;
+      }
+      .agent-card {
+        background: white;
+        padding: 15px;
+        border-radius: 8px;
+        border-left: 4px solid #667eea;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      }
+      .agent-name {
+        font-weight: bold;
+        color: #2a2a72;
+        margin-bottom: 5px;
+      }
+      .agent-description {
+        font-size: 13px;
+        color: #666;
+      }
+      .error-details {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 10px;
+        border-left: 4px solid #dc3545;
+        font-family: monospace;
+        font-size: 13px;
+        max-height: 300px;
+        overflow-y: auto;
+      }
+      .connection-info {
+        background: #e3f2fd;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 15px 0;
+        border-left: 4px solid #2196f3;
+      }
+      @media (max-width: 768px) {
+        .container {
+          margin: 10px;
+          padding: 20px;
+        }
+        .tabs {
+          flex-direction: column;
+        }
+        .tab {
+          flex: none;
+          margin-bottom: 5px;
+        }
+        .summary-grid {
+          grid-template-columns: 1fr;
+        }
+        .download-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🚀 TaskPilot AI</h1>
+        <div class="subtitle">The True AI Data Scientist</div>
+      </div>
+
+      <div id="systemStatus" class="system-status">
+        <div class="status-indicator">
+          <div class="status-dot"></div>
+          <span id="statusText">Checking system status...</span>
+        </div>
+        <div id="agentStatus">Initializing...</div>
+      </div>
+
+      <div class="warning-banner">
+        <h4>🤖 Agent Army Capabilities</h4>
+        <div id="capabilityInfo">
+          <p><strong>✅ Always Available:</strong></p>
+          <ul style="margin: 10px 0; padding-left: 25px;">
+            <li>Tabular Data Analysis (CSV, Excel, JSON)</li>
+            <li>Classification & Regression Tasks</li>
+            <li>Automated Feature Engineering</li>
+            <li>Production-Ready Model Deployment</li>
+            <li>Comprehensive Reports & Visualizations</li>
+          </ul>
+          <p><strong>🎯 Enhanced with Gemini API:</strong></p>
+          <ul style="margin: 10px 0; padding-left: 25px;">
+            <li>Advanced AI-Powered Insights</li>
+            <li>Business Context Understanding</li>
+            <li>Strategic Analysis Planning</li>
+            <li>Intelligent Feature Recommendations</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3>📤 Upload & Analyze Your Data</h3>
+        
+        <!-- Connection Info -->
+        <div class="connection-info">
+          <strong>🔗 Server Connection:</strong> <span id="connectionStatus">Checking...</span><br>
+          <small><strong>Expected URL:</strong> <span id="serverUrl">http://localhost:8000</span></small>
+        </div>
+        
+        <form id="analysisForm" enctype="multipart/form-data">
+          <div class="form-group">
+            <label for="file">📁 Select Data File:</label>
+            <input type="file" id="file" name="file" accept=".csv,.xlsx,.xls,.json" required />
+            <div id="fileInfo" class="file-info"></div>
+            <small style="color: #666; margin-top: 5px; display: block;">
+              Supported formats: CSV, Excel (.xlsx, .xls), JSON. Max size: 100MB
+            </small>
+          </div>
+
+          <div class="form-group">
+            <label for="user_query">💬 Analysis Goal:</label>
+            <textarea
+              id="user_query"
+              name="user_query"
+              rows="3"
+              placeholder="Describe what you want to achieve. e.g., 'Predict customer churn based on usage patterns' or 'Analyze factors affecting house prices'"
+              required
+            ></textarea>
+            
+            <!-- Quick Examples -->
+            <div style="margin: 15px 0; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+              <h5 style="margin: 0 0 10px 0; color: #2a2a72;">💡 Quick Examples:</h5>
+              <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button type="button" onclick="loadExample('customer_churn')" style="padding: 5px 10px; background: #e3f2fd; border: 1px solid #2196f3; border-radius: 4px; cursor: pointer; font-size: 12px;">Customer Churn</button>
+                <button type="button" onclick="loadExample('house_prices')" style="padding: 5px 10px; background: #e8f5e9; border: 1px solid #4caf50; border-radius: 4px; cursor: pointer; font-size: 12px;">House Prices</button>
+                <button type="button" onclick="loadExample('sales_forecast')" style="padding: 5px 10px; background: #fff3e0; border: 1px solid #ff9800; border-radius: 4px; cursor: pointer; font-size: 12px;">Sales Forecast</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="target_column" title="This should be the exact column name from your dataset that contains the values you want to predict or analyze." style="cursor: help;">🎯 Target Column (for supervised learning) ❓</label>
+            <input
+              type="text"
+              id="target_column"
+              name="target_column"
+              placeholder="e.g., 'churn', 'price', 'outcome' (leave empty for unsupervised analysis)"
+            />
+            <small style="color: #666; margin-top: 5px; display: block;">
+              The column you want to predict or analyze as the outcome variable
+            </small>
+          </div>
+
+          <div class="form-group">
+            <label for="task_type" title="Classification predicts categories (yes/no, spam/not spam), while Regression predicts numbers (price, temperature)." style="cursor: help;">🤖 Task Type ❓</label>
+            <select id="task_type" name="task_type">
+              <option value="">Auto-detect from data</option>
+              <option value="classification">Classification (predict categories)</option>
+              <option value="regression">Regression (predict numbers)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="business_context" title="Providing context helps our AI understand your domain and generate more relevant insights and recommendations." style="cursor: help;">🏢 Business Context (optional but recommended) ❓</label>
+            <textarea
+              id="business_context"
+              name="business_context"
+              rows="2"
+              placeholder="Provide business context for better insights. e.g., 'E-commerce company looking to reduce customer churn and increase retention'"
+            ></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="time_budget" title="Longer analysis times allow for more sophisticated feature engineering and model optimization." style="cursor: help;">⏱️ Analysis Depth ❓</label>
+            <select id="time_budget" name="time_budget">
+              <option value="300">Quick Analysis (5 minutes)</option>
+              <option value="600" selected>Standard Analysis (10 minutes)</option>
+              <option value="1200">Deep Analysis (20 minutes)</option>
+              <option value="1800">Comprehensive Analysis (30 minutes)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="gemini_api_key">🔑 Gemini API Key (optional - enhances AI capabilities):</label>
+            <input
+              type="password"
+              id="gemini_api_key"
+              name="gemini_api_key"
+              placeholder="Your Google Gemini API key for enhanced AI features"
+            />
+            <small style="color: #666; margin-top: 5px; display: block;">
+              Get your free API key at: <a href="https://makersuite.google.com/app/apikey" target="_blank">Google AI Studio</a>
+            </small>
+          </div>
+
+          <button type="submit" class="submit-btn" id="submitBtn">
+            🚀 Launch Analysis
+          </button>
+        </form>
+        
+        <!-- Connection Test Button -->
+        <div style="margin: 20px 0; text-align: center;">
+          <button type="button" onclick="testConnection()" style="
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+          ">
+            🔗 Test Connection
+          </button>
+        </div>
+      </div>
+
+      <div id="progress" class="progress-container" style="display: none;">
+        <div id="progressBar" class="progress-bar">0%</div>
+      </div>
+
+      <div id="status" class="status"></div>
+      
+      <div id="agentProgress" class="agent-status" style="display: none;">
+        <div class="agent-card">
+          <div class="agent-name">🧠 Master Strategist</div>
+          <div class="agent-description">Analyzing data and planning strategy...</div>
+        </div>
+        <div class="agent-card">
+          <div class="agent-name">🔍 Data Detective</div>
+          <div class="agent-description">Investigating data quality and patterns...</div>
+        </div>
+        <div class="agent-card">
+          <div class="agent-name">⚗️ Feature Alchemist</div>
+          <div class="agent-description">Engineering optimal features...</div>
+        </div>
+        <div class="agent-card">
+          <div class="agent-name">🎭 Model Maestro</div>
+          <div class="agent-description">Training and optimizing models...</div>
+        </div>
+        <div class="agent-card">
+          <div class="agent-name">📊 Report Artisan</div>
+          <div class="agent-description">Creating comprehensive reports...</div>
+        </div>
+      </div>
+
+      <div id="results" class="results-container" style="display: none;"></div>
+    </div>
+
+    <script>
+      let currentSessionId = null;
+      let analysisInProgress = false;
+      
+      // Configuration - automatically detect the correct server URL
+      const API_BASE_URL = getApiBaseUrl();
+      
+      function getApiBaseUrl() {
+        // Try to detect the correct API base URL
+        const currentUrl = window.location;
+        
+        // If we're on localhost:8000 (served by the FastAPI server), use relative URLs
+        if (currentUrl.hostname === 'localhost' && currentUrl.port === '8000') {
+          return '';
+        }
+        
+        // If we're opening the HTML file directly, try localhost:8000
+        if (currentUrl.protocol === 'file:' || currentUrl.port !== '8000') {
+          return 'http://localhost:8000';
+        }
+        
+        // Default fallback
+        return 'http://localhost:8000';
+      }
+      
+      // Update server URL display
+      document.getElementById('serverUrl').textContent = API_BASE_URL || 'Same origin';
+
+      // Check system status on load
+      window.addEventListener('load', function() {
+        console.log('🚀 TaskPilot AI Frontend Initialized');
+        console.log('📡 API Base URL:', API_BASE_URL);
+        
+        checkSystemStatus();
+        setupFileValidation();
+        loadFormData();
+      });
+
+      async function checkSystemStatus() {
+        const statusText = document.getElementById('statusText');
+        const agentStatus = document.getElementById('agentStatus');
+        const connectionStatus = document.getElementById('connectionStatus');
+        
+        try {
+          console.log('Checking status at:', API_BASE_URL + '/status');
+          
+          const response = await fetch(API_BASE_URL + '/status');
+          
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+          }
+          
+          const status = await response.json();
+          console.log('Status response:', status);
+          
+          if (status.status === 'running') {
+            statusText.textContent = 'System Online';
+            connectionStatus.innerHTML = '<span style="color: #28a745;">✅ Connected</span>';
+            
+            if (status.agents_available && status.gemini_api_configured) {
+              agentStatus.textContent = '🤖 Full Agent Army Available';
+            } else if (status.agents_available) {
+              agentStatus.textContent = '🤖 Agents Ready (Add Gemini API for Enhanced Features)';
+            } else {
+              agentStatus.textContent = '⚡ Fast Mode (Core Features Available)';
+            }
+          } else {
+            statusText.textContent = 'System Issues Detected';
+            agentStatus.textContent = 'Limited Functionality';
+            connectionStatus.innerHTML = '<span style="color: #ffc107;">⚠️ Partial</span>';
+          }
+        } catch (error) {
+          console.log('Status check failed:', error);
+          statusText.textContent = 'Connection Issues';
+          agentStatus.textContent = 'Server Offline';
+          connectionStatus.innerHTML = '<span style="color: #dc3545;">❌ Failed</span>';
+          
+          // Show helpful error message
+          showStatus('error', `❌ Cannot connect to server at ${API_BASE_URL}. Make sure the TaskPilot AI server is running.`, true);
+        }
+      }
+
+      function setupFileValidation() {
+        const fileInput = document.getElementById('file');
+        const fileInfo = document.getElementById('fileInfo');
+        
+        fileInput.addEventListener('change', function(e) {
+          const file = e.target.files[0];
+          if (file) {
+            const sizeInMB = (file.size / (1024 * 1024)).toFixed(2);
+            const fileType = file.name.split('.').pop().toLowerCase();
+            
+            fileInfo.innerHTML = `
+              <strong>Selected:</strong> ${file.name}<br>
+              <strong>Size:</strong> ${sizeInMB} MB<br>
+              <strong>Type:</strong> ${fileType.toUpperCase()}
+            `;
+            fileInfo.style.display = 'block';
+            
+            // Validate file
+            if (!['csv', 'xlsx', 'xls', 'json'].includes(fileType)) {
+              showStatus('error', '❌ Unsupported file type. Please upload CSV, Excel, or JSON files.');
+              return;
+            }
+            
+            if (file.size > 100 * 1024 * 1024) { // 100MB limit
+              showStatus('error', '❌ File too large. Please upload files smaller than 100MB.');
+              return;
+            }
+            
+            showStatus('success', '✅ File looks good!');
+          }
+        });
+      }
+
+      // Form submission handler
+      document.getElementById('analysisForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        if (!analysisInProgress) {
+          runAnalysis();
+        }
+      });
+
+      async function runAnalysis() {
+        const statusDiv = document.getElementById('status');
+        const resultsDiv = document.getElementById('results');
+        const submitBtn = document.getElementById('submitBtn');
+        const progressContainer = document.getElementById('progress');
+        const progressBar = document.getElementById('progressBar');
+        const agentProgress = document.getElementById('agentProgress');
+        
+        analysisInProgress = true;
+        
+        try {
+          // Validate form
+          const fileInput = document.getElementById('file');
+          const file = fileInput.files[0];
+          
+          if (!file) {
+            throw new Error('Please select a file');
+          }
+          
+          const userQuery = document.getElementById('user_query').value.trim();
+          if (!userQuery) {
+            throw new Error('Please describe your analysis goal');
+          }
+
+          // Show initial loading state
+          showStatus('info', '<div class="loading-spinner"></div>Preparing analysis pipeline...', true);
+          submitBtn.disabled = true;
+          submitBtn.innerHTML = '<div class="loading-spinner"></div>Analyzing...';
+          resultsDiv.style.display = 'none';
+          
+          // Show progress bar
+          progressContainer.style.display = 'block';
+          agentProgress.style.display = 'grid';
+          
+          // Animate progress
+          const progressInterval = animateProgress();
+
+          // Prepare form data
+          const formData = new FormData();
+          formData.append('file', file);
+          formData.append('user_query', userQuery);
+          formData.append('target_column', document.getElementById('target_column').value || '');
+          formData.append('task_type', document.getElementById('task_type').value || '');
+          formData.append('business_context', document.getElementById('business_context').value || '');
+          formData.append('time_budget', document.getElementById('time_budget').value);
+          formData.append('gemini_api_key', document.getElementById('gemini_api_key').value || '');
+
+          console.log('Sending analysis request to:', API_BASE_URL + '/upload-and-analyze');
+
+          // Make API call to upload and analyze
+          const response = await fetch(API_BASE_URL + '/upload-and-analyze', {
+            method: 'POST',
+            body: formData
+          });
+
+          console.log('Response received:', response.status, response.statusText);
+
+          if (!response.ok) {
+            let errorMessage;
+            try {
+              const errorData = await response.json();
+              errorMessage = errorData.message || errorData.detail || 'Analysis failed';
+              console.log('Error details:', errorData);
+            } catch {
+              errorMessage = `Server error: ${response.status} ${response.statusText}`;
+            }
+            throw new Error(errorMessage);
+          }
+
+          const result = await response.json();
+          console.log('Analysis result:', result);
+
+          // Clear progress animation
+          clearInterval(progressInterval);
+
+          if (result.status === 'completed') {
+            currentSessionId = result.session_id;
+            showStatus('success', '✅ Analysis completed successfully!');
+            await displayResults(result);
+          } else {
+            throw new Error(result.message || 'Analysis failed');
+          }
+
+        } catch (error) {
+          console.error('Analysis error:', error);
+          
+          let errorMsg = error.message;
+          if (error.message.includes('Failed to fetch')) {
+            errorMsg = `Cannot connect to server. Please ensure TaskPilot AI is running at ${API_BASE_URL}`;
+          }
+          
+          showStatus('error', `❌ ${errorMsg}`, true);
+          
+          // Show detailed troubleshooting for connection errors
+          if (error.message.includes('Failed to fetch') || error.message.includes('Connection') || error.message.includes('Server error')) {
+            const errorDetails = document.createElement('div');
+            errorDetails.className = 'error-details';
+            errorDetails.innerHTML = `
+              <strong>🔧 Troubleshooting Steps:</strong><br><br>
+              <strong>1. Check if the server is running:</strong><br>
+              • Open terminal/command prompt<br>
+              • Navigate to your TaskPilot AI directory<br>
+              • Run: <code>python enhanced_main_pipeline.py</code><br>
+              • Server should start at ${API_BASE_URL}<br><br>
+              
+              <strong>2. Verify server URL:</strong><br>
+              • Expected: ${API_BASE_URL}<br>
+              • Current page: ${window.location.href}<br><br>
+              
+              <strong>3. Check firewall/antivirus:</strong><br>
+              • Allow Python through firewall<br>
+              • Allow port 8000 connections<br><br>
+              
+              <strong>4. Alternative access:</strong><br>
+              • Try opening: <a href="${API_BASE_URL}" target="_blank">${API_BASE_URL}</a><br>
+              • Should show TaskPilot AI interface<br><br>
+              
+              <strong>Technical Error:</strong><br>
+              ${error.message}
+            `;
+            document.getElementById('status').appendChild(errorDetails);
+          }
+        } finally {
+          analysisInProgress = false;
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '🚀 Launch Analysis';
+          progressContainer.style.display = 'none';
+          agentProgress.style.display = 'none';
+        }
+      }
+
+      function animateProgress() {
+        const progressBar = document.getElementById('progressBar');
+        let progress = 0;
+        const interval = setInterval(() => {
+          progress += Math.random() * 8 + 2; // More consistent progress
+          if (progress >= 95) {
+            progress = 95; // Stop at 95% until completion
+            clearInterval(interval);
+          }
+          progressBar.style.width = `${progress}%`;
+          progressBar.textContent = `${Math.round(progress)}%`;
+        }, 800);
+        
+        return interval;
+      }
+
+      async function displayResults(result) {
+        const resultsDiv = document.getElementById('results');
+        const progressBar = document.getElementById('progressBar');
+        
+        // Complete progress bar
+        progressBar.style.width = '100%';
+        progressBar.textContent = '100%';
+        
+        try {
+          // Fetch detailed results
+          let detailedResults = null;
+          if (currentSessionId) {
+            try {
+              const detailResponse = await fetch(`${API_BASE_URL}/sessions/${currentSessionId}/results`);
+              if (detailResponse.ok) {
+                detailedResults = await detailResponse.json();
+                console.log('Detailed results:', detailedResults);
+              }
+            } catch (e) {
+              console.log('Could not fetch detailed results:', e);
+            }
+          }
+
+          let html = `
+            <h2>📊 Analysis Results</h2>
+            
+            <div class="session-info">
+              <h4>📁 Session Information</h4>
+              <p><strong>Session ID:</strong> ${result.session_id}</p>
+              <p><strong>Status:</strong> <span style="color: #28a745; font-weight: bold;">${result.status}</span></p>
+              <p><strong>Analysis Mode:</strong> ${result.results_summary?.agents_used ? 'Full Agent Army 🤖' : 'Fast Mode ⚡'}</p>
+              <p><strong>Completed:</strong> ${new Date().toLocaleString()}</p>
+            </div>
+          `;
+
+          // Results summary
+          if (result.results_summary) {
+            const summary = result.results_summary;
+            
+            html += `
+              <div class="tabs">
+                <button class="tab active" onclick="switchTab('summary')">📈 Summary</button>
+                <button class="tab" onclick="switchTab('details')">🔍 Details</button>
+                <button class="tab" onclick="switchTab('downloads')">📥 Downloads</button>
+                <button class="tab" onclick="switchTab('production')">🚀 Production</button>
+              </div>
+
+              <div id="summary-tab" class="tab-content active">
+                <h4>🎯 Key Achievements</h4>
+                <div class="achievements-list">
+            `;
+
+            if (summary.key_outputs) {
+              summary.key_outputs.forEach(output => {
+                html += `<div class="achievement-item">✅ ${output}</div>`;
+              });
+            }
+
+            html += `
+                </div>
+                
+                <h4>📊 Analysis Overview</h4>
+                <div class="summary-grid">
+                  <div class="summary-card">
+                    <div class="card-value">${summary.agents_used ? 'Full' : 'Fast'}</div>
+                    <div class="card-label">Analysis Mode</div>
+                  </div>
+                  <div class="summary-card">
+                    <div class="card-value">${summary.status}</div>
+                    <div class="card-label">Status</div>
+                  </div>
+                  <div class="summary-card">
+                    <div class="card-value">${new Date(summary.completed_at).toLocaleTimeString()}</div>
+                    <div class="card-label">Completed At</div>
+                  </div>
+                </div>
+            `;
+
+            // Show agent details if full mode was used
+            if (summary.agents_used && summary.agents_deployed) {
+              html += `
+                <h4>🤖 Agents Deployed</h4>
+                <div class="achievements-list">
+              `;
+              summary.agents_deployed.forEach(agent => {
+                html += `<div class="achievement-item">🤖 ${agent}</div>`;
+              });
+              html += `</div>`;
+            }
+
+            html += `</div>`;
+          }
+
+          // Detailed results tab
+          html += `
+            <div id="details-tab" class="tab-content">
+              <h4>🔍 Detailed Analysis Results</h4>
+              <div class="json-viewer">
+                <pre>${JSON.stringify(detailedResults || result, null, 2)}</pre>
+              </div>
+            </div>
+          `;
+
+          // Downloads tab
+          html += `
+            <div id="downloads-tab" class="tab-content">
+              <div class="download-section">
+                <h4>📥 Download Analysis Outputs</h4>
+                <p>Download the generated reports and assets from your analysis session.</p>
+                <div class="download-grid">
+          `;
+          
+          // Add download links
+          const downloadFiles = [
+            { name: 'session_results.json', label: '📄 Session Results', description: 'Complete analysis results' },
+            { name: 'data_summary.json', label: '📊 Data Summary', description: 'Data quality and characteristics' },
+            { name: 'model_report.json', label: '🤖 Model Report', description: 'Model performance and metrics' },
+            { name: 'executive_summary.json', label: '👔 Executive Summary', description: 'Business insights and recommendations' },
+            { name: 'best_model.joblib', label: '💾 Trained Model', description: 'Serialized machine learning model' },
+            { name: 'production_model.py', label: '🐍 Production Code', description: 'Ready-to-use Python code' },
+            { name: 'model_api.py', label: '🌐 API Server', description: 'FastAPI server for model deployment' },
+            { name: 'requirements.txt', label: '📦 Requirements', description: 'Python package dependencies' }
+          ];
+
+          downloadFiles.forEach(file => {
+            html += `
+              <a href="${API_BASE_URL}/sessions/${result.session_id}/download/${file.name}" 
+                 class="download-btn" 
+                 target="_blank"
+                 title="${file.description}">
+                ${file.label}
+              </a>
+            `;
+          });
+
+          html += `
+                </div>
+
+                <h5>🔄 Integration Options:</h5>
+                <div class="achievements-list">
+                  <div class="achievement-item">
+                    <strong>REST API:</strong> Use the FastAPI server for web applications
+                  </div>
+                  <div class="achievement-item">
+                    <strong>Direct Python:</strong> Import the ProductionModel class directly
+                  </div>
+                  <div class="achievement-item">
+                    <strong>Docker:</strong> Containerize using the provided requirements.txt
+                  </div>
+                  <div class="achievement-item">
+                    <strong>Cloud Deploy:</strong> Deploy to AWS, GCP, or Azure using the API server
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+
+          // Production tab
+          html += `
+            <div id="production-tab" class="tab-content">
+              <div class="production-assets">
+                <h4>🚀 Production Deployment Guide</h4>
+                <p>Your AI model is ready for production! Here's everything you need:</p>
+                
+                <div class="achievements-list">
+                  <div class="achievement-item">
+                    <strong>📦 Production Model:</strong> Trained and serialized model ready for deployment
+                  </div>
+                  <div class="achievement-item">
+                    <strong>🐍 Python Code:</strong> Production-ready classes with preprocessing pipeline
+                  </div>
+                  <div class="achievement-item">
+                    <strong>🌐 API Server:</strong> FastAPI server code for REST API deployment
+                  </div>
+                  <div class="achievement-item">
+                    <strong>📋 Requirements:</strong> All Python dependencies listed for easy setup
+                  </div>
+                  <div class="achievement-item">
+                    <strong>📚 Documentation:</strong> Comprehensive analysis reports and methodology
+                  </div>
+                </div>
+
+                <h5>🛠️ Quick Deployment Steps:</h5>
+                <div class="json-viewer">
+                  <pre># 1. Download all production files (use Downloads tab above)
+
+# 2. Create a new project directory
+mkdir my_ai_model && cd my_ai_model
+
+# 3. Install Python dependencies
+pip install -r requirements.txt
+
+# 4. Test the production model
+python production_model.py
+
+# 5. Start the API server
+python model_api.py
+
+# 6. Your AI model API will be running at:
+# http://localhost:8001
+
+# 7. Test with curl:
+curl -X POST "http://localhost:8001/predict" \\
+     -H "Content-Type: application/json" \\
+     -d '{"data": {"feature1": 1.0, "feature2": 2.0}}'</pre>
+                </div>
+
+                <h5>☁️ Cloud Deployment:</h5>
+                <div class="achievements-list">
+                  <div class="achievement-item">
+                    <strong>Heroku:</strong> Upload files and deploy with requirements.txt
+                  </div>
+                  <div class="achievement-item">
+                    <strong>AWS Lambda:</strong> Serverless deployment for cost efficiency
+                  </div>
+                  <div class="achievement-item">
+                    <strong>Google Cloud Run:</strong> Containerized deployment with auto-scaling
+                  </div>
+                  <div class="achievement-item">
+                    <strong>Azure App Service:</strong> Managed hosting with CI/CD integration
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+
+          resultsDiv.innerHTML = html;
+          resultsDiv.style.display = 'block';
+
+          // Scroll to results
+          resultsDiv.scrollIntoView({ behavior: 'smooth' });
+
+        } catch (error) {
+          console.error('Error displaying results:', error);
+          resultsDiv.innerHTML = `
+            <div class="status error">
+              <h4>❌ Error displaying results</h4>
+              <p>${error.message}</p>
+              <h5>Raw Response:</h5>
+              <div class="json-viewer">
+                <pre>${JSON.stringify(result, null, 2)}</pre>
+              </div>
+            </div>
+          `;
+          resultsDiv.style.display = 'block';
+        }
+      }
+
+      function switchTab(tabName) {
+        // Hide all tab contents
+        const contents = document.querySelectorAll('.tab-content');
+        contents.forEach(content => content.classList.remove('active'));
+        
+        // Remove active class from all tabs
+        const tabs = document.querySelectorAll('.tab');
+        tabs.forEach(tab => tab.classList.remove('active'));
+        
+        // Show selected tab content
+        document.getElementById(`${tabName}-tab`).classList.add('active');
+        
+        // Add active class to clicked tab
+        event.target.classList.add('active');
+      }
+
+      function showStatus(type, message, persistent = false) {
+        const statusDiv = document.getElementById('status');
+        statusDiv.className = `status ${type}`;
+        statusDiv.innerHTML = message;
+        statusDiv.style.display = 'block';
+        
+        if (!persistent && type === 'success') {
+          setTimeout(() => {
+            statusDiv.style.display = 'none';
+          }, 3000);
+        }
+      }
+
+      async function testConnection() {
+        try {
+          showStatus('info', '<div class="loading-spinner"></div>Testing connection...', true);
+          
+          console.log('Testing connection to:', API_BASE_URL + '/status');
+          const response = await fetch(API_BASE_URL + '/status');
+          
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+          
+          const status = await response.json();
+          
+          let statusMsg = `✅ Connection successful! Server is running`;
+          if (status.agents_available) {
+            statusMsg += ` with ${status.gemini_api_configured ? 'full agent capabilities' : 'agents ready (add Gemini API for enhanced features)'}.`;
+          } else {
+            statusMsg += ' in fast mode (core features available).';
+          }
+          
+          showStatus('success', statusMsg);
+          
+          // Update connection status
+          document.getElementById('connectionStatus').innerHTML = '<span style="color: #28a745;">✅ Connected</span>';
+          
+        } catch (error) {
+          console.error('Connection test failed:', error);
+          showStatus('error', `❌ Connection failed: ${error.message}. Make sure the server is running at ${API_BASE_URL}.`, true);
+          document.getElementById('connectionStatus').innerHTML = '<span style="color: #dc3545;">❌ Failed</span>';
+        }
+      }
+
+      // Add some helpful keyboard shortcuts
+      document.addEventListener('keydown', function(e) {
+        // Ctrl/Cmd + Enter to submit form
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+          if (!analysisInProgress) {
+            document.getElementById('analysisForm').dispatchEvent(new Event('submit'));
+          }
+        }
+        
+        // Escape to clear status
+        if (e.key === 'Escape') {
+          document.getElementById('status').style.display = 'none';
+        }
+      });
+
+      // Add drag and drop functionality
+      const container = document.querySelector('.container');
+      const fileInput = document.getElementById('file');
+
+      container.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        container.style.borderColor = '#667eea';
+        container.style.backgroundColor = 'rgba(102, 126, 234, 0.05)';
+      });
+
+      container.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        container.style.borderColor = '';
+        container.style.backgroundColor = '';
+      });
+
+      container.addEventListener('drop', function(e) {
+        e.preventDefault();
+        container.style.borderColor = '';
+        container.style.backgroundColor = '';
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+          const file = files[0];
+          fileInput.files = files;
+          fileInput.dispatchEvent(new Event('change'));
+        }
+      });
+
+      // Auto-save form data to localStorage for persistence
+      function saveFormData() {
+        try {
+          const formData = {
+            user_query: document.getElementById('user_query').value,
+            target_column: document.getElementById('target_column').value,
+            task_type: document.getElementById('task_type').value,
+            business_context: document.getElementById('business_context').value,
+            time_budget: document.getElementById('time_budget').value
+          };
+          localStorage.setItem('taskpilot_form_data', JSON.stringify(formData));
+        } catch (e) {
+          console.log('Could not save form data:', e);
+        }
+      }
+
+      function loadFormData() {
+        try {
+          const savedData = localStorage.getItem('taskpilot_form_data');
+          if (savedData) {
+            const formData = JSON.parse(savedData);
+            document.getElementById('user_query').value = formData.user_query || '';
+            document.getElementById('target_column').value = formData.target_column || '';
+            document.getElementById('task_type').value = formData.task_type || '';
+            document.getElementById('business_context').value = formData.business_context || '';
+            document.getElementById('time_budget').value = formData.time_budget || '600';
+          }
+        } catch (e) {
+          console.log('Could not load saved form data:', e);
+        }
+      }
+
+      // Save form data on input changes
+      ['user_query', 'target_column', 'task_type', 'business_context', 'time_budget'].forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+          element.addEventListener('input', saveFormData);
+          element.addEventListener('change', saveFormData);
+        }
+      });
+
+      // Add example datasets functionality
+      function loadExample(exampleType) {
+        const examples = {
+          'customer_churn': {
+            user_query: 'Predict which customers are likely to churn based on their usage patterns and demographics',
+            target_column: 'churn',
+            task_type: 'classification',
+            business_context: 'Telecommunications company wants to identify customers at risk of leaving to implement targeted retention strategies'
+          },
+          'house_prices': {
+            user_query: 'Predict house prices based on location, size, and property features',
+            target_column: 'price',
+            task_type: 'regression',
+            business_context: 'Real estate company needs accurate pricing models for property valuation and market analysis'
+          },
+          'sales_forecast': {
+            user_query: 'Forecast monthly sales based on historical data and seasonal trends',
+            target_column: 'sales',
+            task_type: 'regression',
+            business_context: 'Retail company wants to optimize inventory management and staffing based on predicted sales volumes'
+          }
+        };
+
+        if (examples[exampleType]) {
+          const example = examples[exampleType];
+          document.getElementById('user_query').value = example.user_query;
+          document.getElementById('target_column').value = example.target_column;
+          document.getElementById('task_type').value = example.task_type;
+          document.getElementById('business_context').value = example.business_context;
+          saveFormData();
+          showStatus('info', `📝 Loaded ${exampleType.replace('_', ' ')} example`);
+        }
+      }
+
+      // Make functions available globally
+      window.switchTab = switchTab;
+      window.loadExample = loadExample;
+      window.testConnection = testConnection;
+      
+      // Add helpful console messages
+      console.log('🚀 TaskPilot AI Frontend Ready');
+      console.log('📡 Server URL:', API_BASE_URL);
+      console.log('💡 Tip: Use Ctrl+Enter to submit the form quickly');
+      console.log('💡 Tip: Press Escape to hide status messages');
+    </script>
+  </body>
+</html>

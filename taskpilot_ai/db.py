@@ -128,8 +128,9 @@ def log_retry(user_query_id: int, action: str, result: str):
 def test_connection():
     """Test database connection"""
     try:
+        from sqlalchemy import text
         with engine.connect() as connection:
-            result = connection.execute("SELECT 1")
+            result = connection.execute(text("SELECT 1"))
             print("✅ Database connection successful!")
             return True
     except Exception as e:
